@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理学実験室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* カスタムアニメーションやスタイルの微調整 */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center m-0 font-sans">
+
+    <div class="text-center p-8 fade-in">
+        <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-8">
+            心理学実験室へようこそ
+        </h1>
+        
+        <button 
+            id="startBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-lg"
+        >
+            実験を開始する
+        </button>
+    </div>
+
+    <!-- カスタムメッセージボックス (alertの代わり) -->
+    <div id="modal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">通知</h2>
+            <p class="text-gray-600 mb-6 text-lg">Hello World!</p>
+            <button 
+                id="closeBtn"
+                class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded transition duration-200"
+            >
+                閉じる
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const startBtn = document.getElementById('startBtn');
+        const modal = document.getElementById('modal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // 実験開始ボタンのクリックイベント
+        startBtn.addEventListener('click', () => {
+            // モーダルを表示
+            modal.style.display = 'flex';
+        });
+
+        // 閉じるボタンのクリックイベント
+        closeBtn.addEventListener('click', () => {
+            // モーダルを非表示
+            modal.style.display = 'none';
+        });
+
+        // モーダルの外側をクリックしても閉じるように設定
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

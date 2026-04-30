@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>jsPsych Red Circle</title>
+  <!-- Load jsPsych core and CSS -->
+  <script src="https://unpkg.com/jspsych@7.3.4"></script>
+  <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+  <!-- Load html-keyboard-response plugin -->
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
+  <style>
+    /* 1. Set background color to gray */
+    body {
+      background-color: #808080;
+      color: white; /* Make text readable on gray background */
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 2. Style for the red circle stimulus */
+    .red-circle {
+      width: 100px;
+      height: 100px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      margin: auto;
+    }
+
+    /* Overriding jsPsych default style to match the background requirements */
+    .jspsych-display-element {
+      background-color: #808080;
+      color: white;
+    }
+  </style>
+</head>
+<body></body>
+<script>
+  /**
+   * jsPsych Red Circle Task
+   * Specifications:
+   * - Background: Gray (#808080)
+   * - Stimulus: 100px diameter red circle (CSS div)
+   * - Response: Space key to finish
+   */
+
+  // Initialize jsPsych
+  const jsPsych = initJsPsych();
+
+  // Define Timeline
+  const timeline = [];
+
+  // Instruction trial (Optional but helpful for context)
+  const instructions = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <p>画面中央に赤い円が表示されます。</p>
+      <p><strong>スペースキー</strong>を押すと終了します。</p>
+      <p>準備ができたら何かキーを押してください。</p>
+    `,
+    post_trial_gap: 500
+  };
+  timeline.push(instructions);
+
+  // Red Circle Trial
+  const circle_trial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<div class="red-circle"></div>',
+    choices: [' '], // 3. Only accept space key
+    prompt: '<p style="margin-top: 20px;">スペースキーを押してください</p>',
+    data: {
+      task: 'red_circle_response'
+    }
+  };
+  timeline.push(circle_trial);
+
+  // 4. Finish message
+  const finish_message = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <p>終了しました。</p>
+      <p>ご協力ありがとうございました。</p>
+    `,
+    choices: "NO_KEYS", // Just display the message
+    trial_duration: 3000
+  };
+  timeline.push(finish_message);
+
+  // Run the experiment
+  jsPsych.run(timeline);
+</script>
+</html>

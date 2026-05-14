@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ストループ課題実験</title>
+    <!-- jsPsych コアライブラリ (v7.3.4) -->
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <!-- jsPsych 標準CSS -->
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <!-- 各種プラグインの読み込み -->
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+    
+    <style>
+        body, html {
+            background-color: #FFFFFF;
+            color: #333333;
+            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* jsPsychのデフォルトのマージンを完全に排除し、画面中央に固定する */
+        .jspsych-content-wrapper {
+            background-color: #FFFFFF !important;
+            display: flex !important;
+            align-items: center !important;  /* 上下中央 */
+            justify-content: center !important; /* 左右中央 */
+            height: 100vh !important;
+            width: 100vw !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* jsPsychが自動で付与する上部マージンを強制リセット */
+        .jspsych-content {
+            margin-top: 0 !important;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stroop-stimulus {
+            font-size: 60px;
+            font-weight: bold;
+            line-height: 1.2; /* 文字が切れないよう高さを確保 */
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 1.5em; /* フォントサイズに基づいた高さを固定 */
+            margin: 0;
+        }
+
+        /* 教示画面のスタイル */
+        .instructions {
+            font-size: 24px;
+            line-height: 1.6;
+            text-align: left;
+            display: inline-block;
+            max-width: 800px;
+        }
+
+        /* 注視点（+）のスタイル */
+        .fixation-mark {
+            font-size: 60px;
+            line-height: 1.2;
+        }
+
+        /* ボタンのスタイル調整 */
+        .jspsych-btn {
+            font-size: 20px !important;
+            padding: 10px 24px !important;
+            border-radius: 8px !important;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="jspsych-target"></div>
+
+    <script>
+        const jsPsych = initJsPsych({
+            display_element: 'jspsych-target',
+            on_finish: function() {
+                // 実験終了時にCSVデータを画面に表示
+                jsPsych.data.displayData('csv');
+            }
+        });
+
+        let timeline = [];
+
+        // Permissions Policy制限がある環境（プレビュー画面等）でも止まらないよう、
+        // 組み込みのFullscreenプラグインを使わず、カスタムボタンで処理します。
+        const fullscreen_gate = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: '<p style="font-size: 24px;">実験を開始します。下のボタンを押してください。</p>',
+            choices: ['実験を開始する'],
+            on_finish: function() {
+                const element = document.documentElement;
+                try {
+                    if (element.requestFullscreen) {
+                        element.requestFullscreen().catch(err => {
+                            console.warn("Fullscreen policy restricted: ", err.message);
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Fullscreen API not supported.", e.message);
+                }
+            }
+        };
+        timeline.push(fullscreen_gate);
+
+        const instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <div class="instructions">
+                    <p>これより実験を始めます。</p>
+                    <p>画面中央に色がついた「文字」が表示されます。<br>
+                    文字の意味ではなく、<strong>「文字の色」</strong>をできるだけ速く正確に回答してください。</p>
+                    <p>対応するキーは以下の通りです：</p>
+                    <ul>
+                        <li><span style="color:red; font-weight:bold;">赤色</span>の文字なら：<strong>'r'</strong> キー</li>
+                        <li><span style="color:blue; font-weight:bold;">青色</span>の文字なら：<strong>'b'</strong> キー</li>
+                        <li><span style="color:green; font-weight:bold;">緑色</span>の文字なら：<strong>'g'</strong> キー</li>
+                    </ul>
+                    <br>
+                    <p style="text-align:center"><strong>スペースキー</strong>を押すと開始します。</p>
+                </div>
+            `,
+            choices: [' '],
+            post_trial_gap: 500
+        };
+        timeline.push(instructions);
+
+        const words = ["赤", "青", "緑"];
+        const colors = ["red", "blue", "green"];
+        let stimuli = [];
+
+        for (let w of words) {
+            for (let c of colors) {
+                stimuli.push({
+                    // 刺激をdivで包み、中央揃え用のクラスを適用
+                    stimulus: `<div class="stroop-stimulus" style="color:${c}">${w}</div>`,
+                    word: w,
+                    color: c,
+                    condition: (w === "赤" && c === "red") || (w === "青" && c === "blue") || (w === "緑" && c === "green") ? "congruent" : "incongruent",
+                    correct_response: c === "red" ? "r" : (c === "blue" ? "b" : "g")
+                });
+            }
+        }
+
+        // 注視点
+        const fixation = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '<div class="fixation-mark">+</div>',
+            choices: "NO_KEYS",
+            trial_duration: 500,
+            data: { task: 'fixation' }
+        };
+
+        // 刺激提示
+        const stroop_trial = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: jsPsych.timelineVariable('stimulus'),
+            choices: ['r', 'b', 'g'],
+            data: {
+                task: 'response',
+                word: jsPsych.timelineVariable('word'),
+                color: jsPsych.timelineVariable('color'),
+                condition: jsPsych.timelineVariable('condition'),
+                correct_response: jsPsych.timelineVariable('correct_response')
+            },
+            on_finish: function(data) {
+                // 正誤判定
+                data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
+            }
+        };
+
+        // 試行間隔 (ITI)
+        const iti = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '',
+            choices: "NO_KEYS",
+            trial_duration: 1000
+        };
+
+        const test_procedure = {
+            timeline: [fixation, stroop_trial, iti],
+            timeline_variables: stimuli,
+            sample: {
+                type: 'with-replacement', 
+                size: 10
+            }
+        };
+        timeline.push(test_procedure);
+
+        jsPsych.run(timeline);
+
+    </script>
+</body>
+</html>

@@ -59,7 +59,7 @@
         </a>
       </div>
 
-      <!-- 実験2 -->
+      <!-- 実験2 (本番用プレレジ追加版) -->
       <div class="bg-neutral-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:shadow-red-900/30 hover:-translate-y-2 transition-all duration-300 flex flex-col border border-neutral-700 hover:border-red-500/50">
         <div class="flex-grow">
           <div class="text-red-500 font-bold text-sm mb-2 tracking-wider">Experiment 2</div>
@@ -69,9 +69,29 @@
             <span class="text-neutral-500 block mt-2">（所要時間：約2分）</span>
           </p>
         </div>
-        <a href="muller_lyer_final.html" class="block w-full text-center bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200 shadow-md">
-          実験2に参加する
-        </a>
+        
+        <!-- ボタングループ -->
+        <div class="flex flex-col space-y-4 mt-auto">
+          <!-- メインの参加ボタン -->
+          <a href="muller_lyer_final.html" class="block w-full text-center bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200 shadow-md">
+            実験2に参加する
+          </a>
+          
+          <!-- プレレジ＆透明性情報（区切り線で分ける） -->
+          <div class="pt-4 border-t border-neutral-700 flex flex-col space-y-3">
+            <span class="text-xs text-neutral-500 font-bold text-center tracking-wider">【オープンサイエンス情報】</span>
+            
+            <!-- プレレジ確認ボタン（白抜き枠線） -->
+            <a href="https://github.com/tsubasa-tbjp/my-experiment/blob/main/preregistration.md" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-transparent border border-neutral-500 hover:border-neutral-300 text-neutral-300 hover:text-white font-semibold py-2 px-4 rounded-xl transition-colors duration-200 text-sm">
+              プレレジを確認する
+            </a>
+            
+            <!-- 変更履歴リンク（控えめなテキストリンク） -->
+            <a href="https://github.com/tsubasa-tbjp/my-experiment/commits/main/preregistration.md" target="_blank" rel="noopener noreferrer" class="block w-full text-center text-neutral-400 hover:text-neutral-200 text-xs underline transition-colors duration-200">
+              変更履歴（証拠）を確認する
+            </a>
+          </div>
+        </div>
       </div>
 
     </div>
